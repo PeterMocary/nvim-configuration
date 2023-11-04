@@ -141,14 +141,32 @@ require('lazy').setup({
       end,
     },
   },
+  --{
+  --  -- Theme inspired by Atom
+  --  'navarasu/onedark.nvim',
+  --  priority = 1000,
+  --  config = function()
+  --    vim.cmd.colorscheme 'onedark'
+  --  end,
+  --},
 
   {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+    -- Gruvbox theme
+    'sainnhe/gruvbox-material',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
-    end,
+      vim.g.gruvbox_material_background = "hard"
+      vim.g.gruvbox_material_foreground = "material"
+      vim.cmd.background = "dark"
+      vim.cmd.colorscheme 'gruvbox-material'
+    end
+  },
+
+  {
+    'lervag/vimtex',
+    config = function()
+      vim.g.vimtex_view_method = "zathura"
+    end
   },
 
   {
@@ -158,7 +176,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = false,
-        theme = 'onedark',
+        theme = 'gruvbox-material',
         component_separators = '|',
         section_separators = '',
       },
@@ -174,6 +192,46 @@ require('lazy').setup({
       char = '┊',
       show_trailing_blankline_indent = false,
     },
+  },
+
+  {
+    "nvim-tree/nvim-tree.lua",
+    version = "*",
+    lazy = false,
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      "antosha417/nvim-lsp-file-operations",
+      "echasnovski/mini.base16",
+    },
+    config = function()
+      require("nvim-tree").setup {
+        renderer = {
+          icons = {
+            show = {
+              git = true,
+              file = false,
+              folder = false,
+              folder_arrow = true,
+            },
+            glyphs = {
+              folder = {
+                arrow_closed = "⏵",
+                arrow_open = "⏷",
+              },
+              git = {
+                unstaged = "✗",
+                staged = "✓",
+                unmerged = "⌥",
+                renamed = "➜",
+                untracked = "★",
+                deleted = "⊖",
+                ignored = "◌",
+              },
+            },
+          },
+        },
+      }
+    end,
   },
 
   -- "gc" to comment visual regions/lines
@@ -266,6 +324,19 @@ vim.o.completeopt = 'menuone,noselect'
 vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
+-- Keymaps for easier movement in split view
+vim.keymap.set('n', '<C-h>', '<C-w>h', { silent = true, noremap = true, desc = 'Go to left window' })
+vim.keymap.set('n', '<C-j>', '<C-w>j', { silent = true, noremap = true, desc = 'Go to lower window' })
+vim.keymap.set('n', '<C-k>', '<C-w>k', { silent = true, noremap = false, desc = 'Go to upper window' })
+vim.keymap.set('n', '<C-l>', '<C-w>l', { silent = true, noremap = true, desc = 'Go to right window' })
+
+-- Keymaps for easier resizing in split view
+vim.keymap.set('n', '<S-h>', '<C-w><', { silent = true, noremap = true, desc = 'Decrease current window width' })
+vim.keymap.set('n', '<S-j>', '<C-w>-', { silent = true, noremap = true, desc = 'Decrease current window height' })
+vim.keymap.set('n', '<S-k>', '<C-w>+', { silent = true, noremap = true, desc = 'Increase current window height' })
+vim.keymap.set('n', '<S-l>', '<C-w>>', { silent = true, noremap = true, desc = 'Increase current window width' })
+
+
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
