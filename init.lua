@@ -189,6 +189,15 @@ vim.diagnostic.config {
 
   -- Auto open the float, so you can easily read the errors when jumping with `[d` and `]d`
   jump = { float = true },
+
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = '󰅚',
+      [vim.diagnostic.severity.WARN]  = '󰀪',
+      [vim.diagnostic.severity.INFO]  = '󰋽',
+      [vim.diagnostic.severity.HINT]  = '󰌶',
+    },
+  },
 }
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -243,6 +252,20 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function() vim.hl.on_yank() end,
+})
+
+-- Strip backgrounds from sign and fold columns so they blend with the editor
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = vim.api.nvim_create_augroup('transparent-sign-column', { clear = true }),
+  callback = function()
+    vim.api.nvim_set_hl(0, 'SignColumn', { bg = 'NONE' })
+    vim.api.nvim_set_hl(0, 'FoldColumn', { bg = 'NONE' })
+    for _, group in ipairs { 'DiagnosticSignError', 'DiagnosticSignWarn', 'DiagnosticSignInfo', 'DiagnosticSignHint', 'GitSignsAdd', 'GitSignsChange', 'GitSignsDelete' } do
+      local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
+      hl.bg = nil
+      vim.api.nvim_set_hl(0, group, hl)
+    end
+  end,
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
