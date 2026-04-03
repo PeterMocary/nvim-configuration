@@ -106,12 +106,12 @@ vim.o.number = true
 
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
---vim.o.relativenumber = vim.g.have_relative_numbers
+vim.o.relativenumber = vim.g.have_relative_numbers
 
--- Enable mouse mode, can be useful for resizing splits for example!
+-- Enable mouse mode, can be useful for resizing splits for example.
 vim.o.mouse = 'a'
 
--- Don't show the mode, since it's already in the status line
+-- Don't show the mode, since it's already in the status line.
 vim.o.showmode = false
 
 -- Sync clipboard between OS and Neovim.
@@ -131,7 +131,7 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 
 -- Keep signcolumn on by default
-vim.o.signcolumn = 'yes'
+vim.o.signcolumn = 'auto:2-9'
 
 -- Decrease update time
 vim.o.updatetime = 250
@@ -193,9 +193,9 @@ vim.diagnostic.config {
   signs = {
     text = {
       [vim.diagnostic.severity.ERROR] = '󰅚',
-      [vim.diagnostic.severity.WARN]  = '󰀪',
-      [vim.diagnostic.severity.INFO]  = '󰋽',
-      [vim.diagnostic.severity.HINT]  = '󰌶',
+      [vim.diagnostic.severity.WARN] = '󰀪',
+      [vim.diagnostic.severity.INFO] = '󰋽',
+      [vim.diagnostic.severity.HINT] = '󰌶',
     },
   },
 }
@@ -210,12 +210,6 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
--- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
-
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
@@ -224,12 +218,6 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
--- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -260,11 +248,23 @@ vim.api.nvim_create_autocmd('ColorScheme', {
   callback = function()
     vim.api.nvim_set_hl(0, 'SignColumn', { bg = 'NONE' })
     vim.api.nvim_set_hl(0, 'FoldColumn', { bg = 'NONE' })
-    for _, group in ipairs { 'DiagnosticSignError', 'DiagnosticSignWarn', 'DiagnosticSignInfo', 'DiagnosticSignHint', 'GitSignsAdd', 'GitSignsChange', 'GitSignsDelete' } do
+    for _, group in ipairs {
+      'DiagnosticSignError',
+      'DiagnosticSignWarn',
+      'DiagnosticSignInfo',
+      'DiagnosticSignHint',
+      'GitSignsAdd',
+      'GitSignsChange',
+      'GitSignsDelete',
+    } do
       local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
       hl.bg = nil
       vim.api.nvim_set_hl(0, group, hl)
     end
+    -- illuminate: background-only reference highlights using gruvbox fg-derived warm tones
+    vim.api.nvim_set_hl(0, 'IlluminatedWordText',  { bg = '#504945' }) -- gruvbox bg2
+    vim.api.nvim_set_hl(0, 'IlluminatedWordRead',  { bg = '#504945' }) -- gruvbox bg2
+    vim.api.nvim_set_hl(0, 'IlluminatedWordWrite', { bg = '#665c54' }) -- gruvbox bg3 (slightly brighter for writes)
   end,
 })
 
@@ -349,7 +349,7 @@ require('lazy').setup({
     ---@diagnostic disable-next-line: missing-fields
     opts = {
       -- delay between pressing a key and opening which-key (milliseconds)
-      delay = 0,
+      delay = 100,
       icons = { mappings = vim.g.have_nerd_font },
 
       -- Document existing key chains
@@ -599,29 +599,7 @@ require('lazy').setup({
           --    See `:help CursorHold` for information about when this is executed
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client:supports_method('textDocument/documentHighlight', event.buf) then
-            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
-            vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.document_highlight,
-            })
-
-            vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.clear_references,
-            })
-
-            vim.api.nvim_create_autocmd('LspDetach', {
-              group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
-              callback = function(event2)
-                vim.lsp.buf.clear_references()
-                vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
-              end,
-            })
-          end
+          -- Reference highlighting handled by vim-illuminate
 
           -- The following code creates a keymap to toggle inlay hints in your
           -- code, if the language server you are using supports them
@@ -640,7 +618,17 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {},
+        basedpyright = {
+          settings = {
+            basedpyright = {
+              disableOrganizeImports = true, -- ruff handles import sorting
+              analysis = {
+                typeCheckingMode = 'standard',
+              },
+            },
+          },
+        },
+        ruff = {}, -- linting + code actions
         -- rust_analyzer = {},
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -933,7 +921,7 @@ require('lazy').setup({
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommended keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommended keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
