@@ -209,6 +209,30 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w>h', { desc = 'Move focus left from terminal' })
+vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w>j', { desc = 'Move focus down from terminal' })
+vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', { desc = 'Move focus up from terminal' })
+vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', { desc = 'Move focus right from terminal' })
+local term_buf = nil
+local term_win = nil
+vim.keymap.set({ 'n', 't' }, '<leader>t', function()
+  if term_win and vim.api.nvim_win_is_valid(term_win) then
+    vim.api.nvim_win_hide(term_win)
+    term_win = nil
+  elseif term_buf and vim.api.nvim_buf_is_valid(term_buf) then
+    vim.cmd.split()
+    term_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(term_win, term_buf)
+    vim.cmd.startinsert()
+  else
+    vim.cmd.split()
+    vim.cmd.terminal()
+    term_buf = vim.api.nvim_get_current_buf()
+    term_win = vim.api.nvim_get_current_win()
+    vim.bo[term_buf].buflisted = false
+    vim.cmd.startinsert()
+  end
+end, { desc = 'Toggle [T]erminal' })
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
