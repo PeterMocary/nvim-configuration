@@ -586,6 +586,7 @@ require('lazy').setup({
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
           map('K', function() vim.lsp.buf.hover { border = 'rounded' } end, 'Hover Documentation')
+          map('<leader>d', function() vim.diagnostic.open_float { border = 'rounded' } end, 'Show [D]iagnostic')
           map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
@@ -630,7 +631,16 @@ require('lazy').setup({
             },
           },
         },
-        ruff = {}, -- linting + code actions
+        ruff = {
+          init_options = {
+            settings = {
+              lint = { ignore = { 'F821' } }, -- basedpyright handles undefined names
+            },
+          },
+          on_attach = function(client)
+            client.server_capabilities.hoverProvider = false
+          end,
+        },
         -- rust_analyzer = {},
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
