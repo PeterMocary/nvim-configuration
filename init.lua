@@ -202,7 +202,6 @@ vim.diagnostic.config {
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
-
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -263,8 +262,8 @@ vim.api.nvim_create_autocmd('ColorScheme', {
       vim.api.nvim_set_hl(0, group, hl)
     end
     -- illuminate: background-only reference highlights using gruvbox fg-derived warm tones
-    vim.api.nvim_set_hl(0, 'IlluminatedWordText',  { bg = '#504945' }) -- gruvbox bg2
-    vim.api.nvim_set_hl(0, 'IlluminatedWordRead',  { bg = '#504945' }) -- gruvbox bg2
+    vim.api.nvim_set_hl(0, 'IlluminatedWordText', { bg = '#504945' }) -- gruvbox bg2
+    vim.api.nvim_set_hl(0, 'IlluminatedWordRead', { bg = '#504945' }) -- gruvbox bg2
     vim.api.nvim_set_hl(0, 'IlluminatedWordWrite', { bg = '#665c54' }) -- gruvbox bg3 (slightly brighter for writes)
   end,
 })
@@ -627,6 +626,10 @@ require('lazy').setup({
               disableOrganizeImports = true, -- ruff handles import sorting
               analysis = {
                 typeCheckingMode = 'standard',
+                diagnosticSeverityOverrides = {
+                  reportUndefinedVariable = false, -- ruff handles this (F821)
+                  reportUnusedVariable = false, -- ruff handles this (F841)
+                },
               },
             },
           },
@@ -634,12 +637,26 @@ require('lazy').setup({
         ruff = {
           init_options = {
             settings = {
-              lint = { ignore = { 'F821' } }, -- basedpyright handles undefined names
+              lineLength = 119,
+              lint = {
+                select = {
+                  'E', -- pycodestyle errors (style violations)
+                  'W', -- pycodestyle warnings
+                  'F', -- pyflakes (unused imports, undefined names, etc.)
+                  'I', -- isort (import ordering)
+                },
+                ignore = {
+                  -- ignored in basedpyright - ruff needs to handle these
+                  -- 'F821', -- undefined name
+                  -- 'F841', -- unused variable
+                },
+                isort = {
+                  ['known-first-party'] = { 'leapp' },
+                },
+              },
             },
           },
-          on_attach = function(client)
-            client.server_capabilities.hoverProvider = false
-          end,
+          on_attach = function(client) client.server_capabilities.hoverProvider = false end,
         },
         -- rust_analyzer = {},
         --
@@ -741,7 +758,7 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
-        python = { 'ruff_format', 'ruff_organize_imports' },
+        python = { 'ruff_organize_imports', 'ruff_format' },
       },
     },
   },
