@@ -14,7 +14,7 @@ return {
         { text = { builtin.foldfunc }, click = 'v:lua.ScFa' },
         -- All signs: diagnostics, git, DAP
         {
-          sign = { name = { '.*' }, namespace = { '.*' }, maxwidth = 1, colwidth = 1, auto = true },
+          sign = { name = { '.*' }, namespace = { '.*' }, maxwidth = 1, colwidth = 1, auto = false },
           click = 'v:lua.ScSa',
         },
         -- Line numbers

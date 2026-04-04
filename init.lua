@@ -131,7 +131,7 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 
 -- Keep signcolumn on by default
-vim.o.signcolumn = 'auto:2-9'
+vim.o.signcolumn = 'yes'
 
 -- Decrease update time
 vim.o.updatetime = 250
@@ -201,6 +201,7 @@ vim.diagnostic.config {
 }
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -584,6 +585,7 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
+          map('K', function() vim.lsp.buf.hover { border = 'rounded' } end, 'Hover Documentation')
           map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
@@ -837,6 +839,8 @@ require('lazy').setup({
       }
       vim.o.background = 'dark'
       vim.cmd.colorscheme 'gruvbox'
+      vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#1d2021' })
+      vim.api.nvim_set_hl(0, 'FloatBorder', { fg = '#ebdbb2' })
     end,
   },
 

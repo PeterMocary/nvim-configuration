@@ -18,15 +18,18 @@ return {
       lualine_x = {
         {
           function()
-            local venv = require('venv-selector').venv()
-            if venv then
-              return '(' .. vim.fn.fnamemodify(venv, ':t') .. ')'
+            local clients = vim.lsp.get_clients { name = 'basedpyright', bufnr = 0 }
+            if #clients > 0 then
+              local python = clients[1].config.settings
+                and clients[1].config.settings.python
+                and clients[1].config.settings.python.pythonPath
+              if python then
+                return '(' .. vim.fn.fnamemodify(vim.fn.fnamemodify(python, ':h:h'), ':t') .. ')'
+              end
             end
             return ''
           end,
-          cond = function()
-            return package.loaded['venv-selector'] ~= nil and vim.bo.filetype == 'python'
-          end,
+          cond = function() return vim.bo.filetype == 'python' end,
         },
         'encoding',
         'filetype',

@@ -21,6 +21,13 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    require('nvim-tree').setup(opts)
+    vim.api.nvim_set_hl(0, 'NvimTreeFolderName', { fg = '#83a598' })
+    vim.api.nvim_set_hl(0, 'NvimTreeOpenedFolderName', { fg = '#83a598' })
+    vim.api.nvim_set_hl(0, 'NvimTreeEmptyFolderName', { fg = '#83a598' })
+    vim.api.nvim_set_hl(0, 'NvimTreeFolderIcon', { fg = '#83a598' })
+  end,
   keys = {
     { '\\', '<cmd>NvimTreeToggle<cr>', desc = 'Toggle file explorer' },
     { '<leader>e', '<cmd>NvimTreeFocus<cr>', desc = 'Focus file explorer' },
