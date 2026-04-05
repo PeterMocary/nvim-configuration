@@ -103,6 +103,17 @@ vim.g.have_relative_numbers = true
 
 -- Make line numbers default
 vim.o.number = true
+vim.o.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
+  command = 'silent! checktime',
+})
+vim.api.nvim_create_autocmd('BufLeave', {
+  callback = function()
+    if vim.bo.modified and vim.bo.buftype == '' and vim.fn.expand '%' ~= '' then
+      vim.cmd 'silent! write'
+    end
+  end,
+})
 
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
@@ -215,7 +226,7 @@ vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', { desc = 'Move focus up from t
 vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', { desc = 'Move focus right from terminal' })
 local term_buf = nil
 local term_win = nil
-vim.keymap.set({ 'n', 't' }, '<leader>t', function()
+vim.keymap.set('n', '<leader>t', function()
   if term_win and vim.api.nvim_win_is_valid(term_win) then
     vim.api.nvim_win_hide(term_win)
     term_win = nil
