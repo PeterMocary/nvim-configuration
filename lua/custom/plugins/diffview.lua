@@ -11,5 +11,7 @@ return {
     { '<leader>gm', '<cmd>DiffviewMergeToolOpen<cr>', desc = 'Git merge tool' },
     { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Git diff close' },
   },
-  opts = {},
+  opts = {
+    enhanced_diff_hl = true,
+  },
 }

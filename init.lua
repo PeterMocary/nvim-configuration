@@ -164,6 +164,8 @@ vim.o.splitbelow = true
 --   and `:help lua-guide-options`
 vim.o.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+-- Diagonal lines for deleted lines in diff mode
+vim.opt.fillchars:append { diff = '╱' }
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
