@@ -691,6 +691,9 @@ require('lazy').setup({
                   ['known-first-party'] = { 'leapp' },
                 },
               },
+              format = {
+                quoteStyle = 'single',
+              },
             },
           },
           on_attach = function(client) client.server_capabilities.hoverProvider = false end,
@@ -770,11 +773,16 @@ require('lazy').setup({
         desc = '[F]ormat buffer',
       },
     },
+    init = function()
+      vim.api.nvim_create_user_command('FormatDisable', function() vim.g.disable_autoformat = true end, { desc = 'Disable autoformat-on-save for this session' })
+      vim.api.nvim_create_user_command('FormatEnable', function() vim.g.disable_autoformat = false end, { desc = 'Re-enable autoformat-on-save' })
+    end,
     ---@module 'conform'
     ---@type conform.setupOpts
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
+        if vim.g.disable_autoformat then return nil end
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
